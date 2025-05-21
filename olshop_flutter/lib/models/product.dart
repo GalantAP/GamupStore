@@ -4,6 +4,7 @@ class Product {
   final String description;
   final double price;
   final String imageUrl;
+  final String category; // 👈 tambahkan ini
 
   Product({
     required this.id,
@@ -11,5 +12,6 @@ class Product {
     required this.description,
     required this.price,
     required this.imageUrl,
+    required this.category, // 👈 tambahkan ini di constructor
   });
 }

@@ -6,6 +6,7 @@ import 'providers/user_provider.dart';
 import 'providers/product_provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/order_provider.dart';
+import 'providers/auth_provider.dart'; // ✅ Tambahkan ini
 
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -31,12 +32,13 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()), // ✅ Tambahkan ini
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Modern Olshop',
         theme: ThemeData(
-          brightness: Brightness.light, // Pastikan tema terang
+          brightness: Brightness.light,
           primarySwatch: Colors.indigo,
           scaffoldBackgroundColor: Colors.white,
           appBarTheme: const AppBarTheme(
@@ -50,7 +52,7 @@ class MyApp extends StatelessWidget {
           textTheme: GoogleFonts.poppinsTextTheme(ThemeData.light().textTheme),
           useMaterial3: true,
         ),
-        initialRoute: '/login',
+        initialRoute: '/login', // ✅ Bisa diganti ke '/' kalau mau home cek auth dulu
         routes: {
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
