@@ -1,20 +1,70 @@
-import 'package:flutter/material.dart';
-import '../models/user.dart';
+import 'package:flutter/foundation.dart';
+
+class User {
+  final String id;
+  final String username;
+  final String email;
+  final String? imagePath;
+
+  User({
+    required this.id,
+    required this.username,
+    required this.email,
+    this.imagePath,
+  });
+}
 
 class UserProvider with ChangeNotifier {
   User? _user;
 
+  /// Getter user aktif
   User? get user => _user;
 
-  bool get isAuth => _user != null;
+  /// Cek apakah user sedang login
+  bool get isLoggedIn => _user != null;
 
-  void login(String username, String email) {
-    _user = User(id: 'u1', username: username, email: email);
+  /// Getter data user spesifik
+  String get userId => _user?.id ?? '';
+  String get username => _user?.username ?? 'User';
+  String get email => _user?.email ?? 'email@example.com';
+  String? get imagePath => _user?.imagePath;
+
+  /// Login user
+  void login({
+    required String id,
+    required String username,
+    required String email,
+    String? imagePath,
+  }) {
+    _user = User(
+      id: id,
+      username: username,
+      email: email,
+      imagePath: imagePath,
+    );
     notifyListeners();
   }
 
+  /// Logout user
   void logout() {
     _user = null;
     notifyListeners();
+  }
+
+  /// Update profile user aktif
+  void updateUser({
+    String? username,
+    String? email,
+    String? imagePath,
+  }) {
+    if (_user != null) {
+      _user = User(
+        id: _user!.id,
+        username: username ?? _user!.username,
+        email: email ?? _user!.email,
+        imagePath: imagePath ?? _user!.imagePath,
+      );
+      notifyListeners();
+    }
   }
 }

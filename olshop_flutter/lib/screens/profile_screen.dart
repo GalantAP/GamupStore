@@ -1,115 +1,125 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/services.dart';
-
 import '../providers/user_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  void _confirmLogout(BuildContext context, UserProvider userProvider) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Confirm Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              userProvider.logout();
+              Navigator.of(ctx).pop();
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+            child: const Text(
+              'Logout',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    final user = userProvider.user;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
-        centerTitle: true,
-        backgroundColor: Colors.deepPurple,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
+        actions: [
+          Consumer<UserProvider>(
+            builder: (context, userProvider, _) {
+              return IconButton(
+                icon: const Icon(Icons.logout),
+                tooltip: 'Logout',
+                onPressed: userProvider.user == null
+                    ? null
+                    : () => _confirmLogout(context, userProvider),
+              );
+            },
+          ),
+        ],
       ),
-      body: user == null
-          ? const Center(
-              child: Text(
-                'Not logged in',
-                style: TextStyle(fontSize: 18),
-              ),
-            )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+      body: SafeArea(
+        child: Consumer<UserProvider>(
+          builder: (context, userProvider, _) {
+            final user = userProvider.user;
+            if (user == null) {
+              return const Center(
+                child: Text(
+                  'No user logged in',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+              );
+            }
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Avatar
                   CircleAvatar(
                     radius: 60,
-                    backgroundColor: Colors.deepPurple.shade100,
-                    child: const Icon(
-                      Icons.person,
-                      size: 60,
-                      color: Colors.deepPurple,
-                    ),
+                    backgroundImage: user.imagePath != null
+                        ? AssetImage(user.imagePath!)
+                        : const AssetImage('assets/images/default_profile.jpg'),
+                    backgroundColor: Colors.grey.shade200,
                   ),
                   const SizedBox(height: 20),
-
-                  // Username & Email Info Card
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                  Text(
+                    user.username,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
                     ),
-                    elevation: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.person, color: Colors.deepPurple),
-                              const SizedBox(width: 10),
-                              Text(
-                                user.username,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Divider(height: 30, thickness: 1),
-                          Row(
-                            children: [
-                              const Icon(Icons.email, color: Colors.deepPurple),
-                              const SizedBox(width: 10),
-                              Text(
-                                user.email,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    user.email,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey.shade700,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 40),
-
-                  // Logout button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        userProvider.logout();
-                        Navigator.pushReplacementNamed(context, '/login');
-                      },
                       icon: const Icon(Icons.logout),
                       label: const Text(
                         'Logout',
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 18),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
                       ),
+                      onPressed: () => _confirmLogout(context, userProvider),
                     ),
                   ),
                 ],
               ),
-            ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

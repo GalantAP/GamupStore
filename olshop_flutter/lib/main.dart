@@ -6,7 +6,7 @@ import 'providers/user_provider.dart';
 import 'providers/product_provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/order_provider.dart';
-import 'providers/auth_provider.dart'; // ✅ Tambahkan ini
+import 'providers/auth_provider.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -28,11 +28,26 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, UserProvider>(
+          create: (_) => UserProvider(),
+          update: (_, authProvider, userProvider) {
+            if (authProvider.isAuthenticated) {
+              userProvider!.login(
+                id: authProvider.userId ?? '',
+                username: authProvider.username ?? 'User',
+                email: authProvider.email ?? 'email@example.com',
+                imagePath: authProvider.imagePath,
+              );
+            } else {
+              userProvider!.logout();
+            }
+            return userProvider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()), // ✅ Tambahkan ini
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -52,7 +67,7 @@ class MyApp extends StatelessWidget {
           textTheme: GoogleFonts.poppinsTextTheme(ThemeData.light().textTheme),
           useMaterial3: true,
         ),
-        initialRoute: '/login', // ✅ Bisa diganti ke '/' kalau mau home cek auth dulu
+        home: const AuthWrapper(),
         routes: {
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
@@ -65,5 +80,20 @@ class MyApp extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
+    if (authProvider.isAuthenticated) {
+      return const HomeScreen();
+    } else {
+      return const LoginScreen();
+    }
   }
 }

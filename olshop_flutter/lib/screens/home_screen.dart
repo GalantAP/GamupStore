@@ -36,82 +36,135 @@ class _HomeScreenState extends State<HomeScreen> {
     final categories = ['All', ...productProvider.categories];
 
     return Scaffold(
+      // AppBar dengan gradient dan shadow
       appBar: AppBar(
-        title: const Text('Gamup Store'),
+        elevation: 4,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.deepPurple, Colors.deepPurpleAccent],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        title: const Text(
+          'Gamup Store',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.shopping_cart),
+            icon: const Icon(Icons.shopping_cart_outlined),
+            tooltip: 'Cart',
             onPressed: () => Navigator.pushNamed(context, '/cart'),
           ),
           IconButton(
-            icon: const Icon(Icons.person),
+            icon: const Icon(Icons.person_outline),
+            tooltip: 'Profile',
             onPressed: () => Navigator.pushNamed(context, '/profile'),
           ),
+          const SizedBox(width: 10),
         ],
       ),
-      body: Column(
-        children: [
-          // Filter dan Sort Row
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Row(
+
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Column(
+          children: [
+            // Filter dan Sort dengan style modern
+            Row(
               children: [
-                // Dropdown kategori
                 Expanded(
-                  child: DropdownButton<String>(
+                  child: DropdownButtonFormField<String>(
                     value: selectedCategory,
-                    isExpanded: true,
+                    decoration: InputDecoration(
+                      labelText: 'Category',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    items: categories
+                        .map(
+                          (category) => DropdownMenuItem(
+                            value: category,
+                            child: Text(category),
+                          ),
+                        )
+                        .toList(),
                     onChanged: (value) {
                       setState(() {
                         selectedCategory = value!;
                       });
                     },
-                    items: categories.map((category) {
-                      return DropdownMenuItem(
-                        value: category,
-                        child: Text(category),
-                      );
-                    }).toList(),
                   ),
                 ),
-                const SizedBox(width: 10),
-                // Dropdown Sort
+                const SizedBox(width: 12),
                 Expanded(
-                  child: DropdownButton<String>(
+                  child: DropdownButtonFormField<String>(
                     value: sortBy,
-                    isExpanded: true,
+                    decoration: InputDecoration(
+                      labelText: 'Sort by',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    items: ['None', 'Highest', 'Lowest']
+                        .map(
+                          (sortOption) => DropdownMenuItem(
+                            value: sortOption,
+                            child: Text(sortOption),
+                          ),
+                        )
+                        .toList(),
                     onChanged: (value) {
                       setState(() {
                         sortBy = value!;
                       });
                     },
-                    items: ['None', 'Highest', 'Lowest'].map((sortOption) {
-                      return DropdownMenuItem(
-                        value: sortOption,
-                        child: Text(sortOption),
-                      );
-                    }).toList(),
                   ),
                 ),
               ],
             ),
-          ),
 
-          // GridView produk
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(10),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 3 / 4,
+            const SizedBox(height: 20),
+
+            // GridView produk dengan Card dan InkWell (efek sentuh)
+            Expanded(
+              child: GridView.builder(
+                padding: EdgeInsets.zero,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 3 / 4,
+                ),
+                itemCount: products.length,
+                itemBuilder: (ctx, i) {
+                  final product = products[i];
+                  return Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: () {
+                        // Bisa tambah navigasi ke detail produk misal:
+                        // Navigator.pushNamed(context, '/product-detail', arguments: product.id);
+                      },
+                      splashColor: Colors.deepPurple.withOpacity(0.2),
+                      child: ProductItem(product: product),
+                    ),
+                  );
+                },
               ),
-              itemCount: products.length,
-              itemBuilder: (ctx, i) => ProductItem(product: products[i]),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
