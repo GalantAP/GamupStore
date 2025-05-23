@@ -3,27 +3,42 @@ import 'package:provider/provider.dart';
 
 import '../providers/cart_provider.dart';
 import '../widgets/cart_item.dart';
+import 'checkout_screen.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
+  Route _createRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOut;
+
+        final tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        final offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 400),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final blue = Colors.blue.shade700;
     final cart = Provider.of<CartProvider>(context);
     final cartItems = cart.items.values.toList();
 
     return Scaffold(
       appBar: AppBar(
-        elevation: 4,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.deepPurple, Colors.deepPurpleAccent],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
+        elevation: 5,
+        backgroundColor: blue,
         title: const Text(
           'Your Cart',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
@@ -36,7 +51,7 @@ class CartScreen extends StatelessWidget {
                   'Your cart is empty',
                   style: TextStyle(
                     fontSize: 20,
-                    color: Colors.grey.shade600,
+                    color: blue.withOpacity(0.6),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -45,14 +60,16 @@ class CartScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 20),
                       itemCount: cart.itemCount,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      separatorBuilder: (_, __) => const SizedBox(height: 14),
                       itemBuilder: (ctx, i) => Card(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        elevation: 3,
+                        elevation: 4,
+                        shadowColor: blue.withOpacity(0.3),
                         child: CartItem(product: cartItems[i]),
                       ),
                     ),
@@ -64,18 +81,26 @@ class CartScreen extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                        backgroundColor: Colors.deepPurple,
-                        foregroundColor: Colors.white,  // <-- warna teks putih
-                        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        backgroundColor: blue,
+                        foregroundColor: Colors.white,
+                        textStyle: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        elevation: 6,
+                        shadowColor: blue.withOpacity(0.4),
                       ),
                       onPressed: cart.itemCount == 0
                           ? null
                           : () {
-                              Navigator.pushNamed(context, '/checkout');
+                              Navigator.push(
+                                context,
+                                _createRoute(const CheckoutScreen()),
+                              );
                             },
-                      child: Text('Checkout (\$${cart.totalAmount.toStringAsFixed(2)})'),
+                      child: Text(
+                        'Checkout (\$${cart.totalAmount.toStringAsFixed(2)})',
+                      ),
                     ),
                   ),
                 ],

@@ -4,13 +4,13 @@ class User {
   final String id;
   final String username;
   final String email;
-  final String? imagePath;
+  final String imagePath;
 
   User({
     required this.id,
     required this.username,
     required this.email,
-    this.imagePath,
+    required this.imagePath,
   });
 }
 
@@ -27,7 +27,8 @@ class UserProvider with ChangeNotifier {
   String get userId => _user?.id ?? '';
   String get username => _user?.username ?? 'User';
   String get email => _user?.email ?? 'email@example.com';
-  String? get imagePath => _user?.imagePath;
+  String get imagePath =>
+      _user?.imagePath ?? 'assets/images/banner/admin.jpg';
 
   /// Login user
   void login({
@@ -40,7 +41,8 @@ class UserProvider with ChangeNotifier {
       id: id,
       username: username,
       email: email,
-      imagePath: imagePath,
+      imagePath: imagePath ??
+          'assets/images/banner/admin.jpg', // default gambar
     );
     notifyListeners();
   }
