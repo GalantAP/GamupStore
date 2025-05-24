@@ -12,13 +12,13 @@ dependencies:
     sdk: flutter
   provider: ^6.0.5
   google_fonts: ^6.1.0
-  intl: ^0.18.0   # <-- sudah benar
+  intl: ^0.18.0
   carousel_slider: ^5.0.0
+  lottie: ^2.3.2    # Tambahkan package Lottie untuk animasi json
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^5.0.0
 
 flutter:
@@ -27,3 +27,4 @@ flutter:
   assets:
     - assets/images/
     - assets/images/banner/
+    - assets/animation/   # Tambahkan ini untuk asset Lottie kamu

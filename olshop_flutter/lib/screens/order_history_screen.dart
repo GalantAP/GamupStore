@@ -11,12 +11,17 @@ class OrderHistoryScreen extends StatelessWidget {
     final orderProvider = Provider.of<OrderProvider>(context);
     final orders = orderProvider.orders;
 
+    final primaryColor = Colors.indigo.shade900;
+    final secondaryColor = Colors.indigo.shade700;
+    final backgroundColor = Colors.grey.shade100;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: const Text('Order History'),
-        backgroundColor: Colors.blue,
+        backgroundColor: primaryColor,
         elevation: 0,
+        centerTitle: true,
       ),
       body: orders.isEmpty
           ? Center(
@@ -24,7 +29,7 @@ class OrderHistoryScreen extends StatelessWidget {
                 'No orders yet.',
                 style: TextStyle(
                   fontSize: 18,
-                  color: Colors.blue.shade300,
+                  color: primaryColor.withAlpha((0.4 * 255).round()),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -37,100 +42,134 @@ class OrderHistoryScreen extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Card(
-                    elevation: 4,
+                    elevation: 8,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    shadowColor: Colors.blue.withAlpha(50),
+                    shadowColor: primaryColor.withAlpha((0.25 * 255).round()),
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Order #${order.id}',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: const Color.fromARGB(255, 255, 255, 255),
+                              color: primaryColor,
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          ...order.products.map((prod) => Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 2),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        prod.name,
-                                        style: const TextStyle(fontSize: 16),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                          const SizedBox(height: 16),
+                          ...order.products.map(
+                            (prod) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      prod.name,
+                                      style: const TextStyle(fontSize: 17),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    Text(
-                                      'x1',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.blue.shade600,
-                                      ),
+                                  ),
+                                  Text(
+                                    'x1',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: secondaryColor,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                    Text(
-                                      'Rp ${prod.price.toStringAsFixed(2)}',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.blue.shade700,
-                                      ),
+                                  ),
+                                  Text(
+                                    'Rp ${prod.price.toStringAsFixed(2)}',
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w700,
+                                      color: secondaryColor,
                                     ),
-                                  ],
-                                ),
-                              )),
-                          const Divider(height: 20, thickness: 1),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const Divider(height: 32, thickness: 1.2),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
                                 'Total',
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
                                 'Rp ${order.totalAmount.toStringAsFixed(2)}',
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.blue.shade800,
+                                  color: primaryColor,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          // Optional: Tambah button re-order atau detail di sini kalau mau
+                          const SizedBox(height: 20),
                           ElevatedButton.icon(
                             onPressed: () {
-                              // Contoh aksi: bisa implement repeat order
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: const Text('Re-order not implemented'),
-                                  backgroundColor: Colors.blue.shade700,
+                                  backgroundColor: primaryColor,
+                                  behavior: SnackBarBehavior.floating,
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 24, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.shopping_bag),
-                            label: const Text('Re-Order'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white, // Warna teks dan icon jadi putih
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                            icon: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: primaryColor.withAlpha((0.4 * 255).round()),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
                               ),
-                              elevation: 4,
-                              shadowColor: Colors.blueAccent,
+                              padding: const EdgeInsets.all(6),
+                              child: Icon(
+                                Icons.shopping_bag,
+                                size: 26,
+                                color: primaryColor,
+                              ),
+                            ),
+                            label: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                              child: Text(
+                                'Re-Order',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.8,
+                                ),
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              elevation: 6,
+                              shadowColor: primaryColor.withAlpha((0.6 * 255).round()),
                             ),
                           ),
                         ],

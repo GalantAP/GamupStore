@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_slider/carousel_slider.dart';  // Import carousel_slider
 
 import '../providers/product_provider.dart';
 import '../widgets/product_item.dart';
+import '../utils/page_transitions.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  static Route route() {
+    return PageTransitions.fadeSlideFromRight(const HomeScreen());
+  }
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -16,7 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String selectedCategory = 'All';
   String searchQuery = '';
   String selectedSort = 'None';
-  bool isCategoryDropdownOpen = false;
 
   final List<String> promoBanners = [
     'assets/images/banner/promo1.jpg',
@@ -24,31 +28,20 @@ class _HomeScreenState extends State<HomeScreen> {
     'assets/images/banner/promo3.jpg',
   ];
 
-  void toggleCategoryDropdown() {
-    setState(() {
-      isCategoryDropdownOpen = !isCategoryDropdownOpen;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
     var products = productProvider.products;
 
-    // Filter kategori
     if (selectedCategory != 'All') {
       products = products.where((p) => p.category == selectedCategory).toList();
     }
 
-    // Filter search
-    if (searchQuery.isNotEmpty) {
-      products = products
-          .where((p) =>
-              p.name.toLowerCase().contains(searchQuery.toLowerCase()))
-          .toList();
+    if (searchQuery.trim().isNotEmpty) {
+      final query = searchQuery.trim().toLowerCase();
+      products = products.where((p) => p.name.toLowerCase().contains(query)).toList();
     }
 
-    // Sorting
     if (selectedSort == 'Highest') {
       products.sort((a, b) => b.price.compareTo(a.price));
     } else if (selectedSort == 'Lowest') {
@@ -57,341 +50,380 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final categories = ['All', ...productProvider.categories];
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWideScreen = screenWidth >= 600;
+
+    final Color dropdownBgColor = Colors.indigo.shade700;
+    final Color dropdownTextColor = Colors.white;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFE3F2FD),
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        backgroundColor: Colors.blue[800],
-        elevation: 2,
+        backgroundColor: Colors.indigo.shade900,
+        elevation: 0,
         title: const Text(
-          'Gamup Store',
+          'GamUp Store',
           style: TextStyle(
-            color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: 24,
+            fontSize: 26,
+            letterSpacing: 1.1,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
+            icon: const Icon(Icons.shopping_cart_outlined, size: 26),
+            tooltip: 'Keranjang',
             onPressed: () => Navigator.pushNamed(context, '/cart'),
           ),
           IconButton(
-            icon: const Icon(Icons.person_outline, color: Colors.white),
+            icon: const Icon(Icons.person_outline, size: 26),
+            tooltip: 'Profil',
             onPressed: () => Navigator.pushNamed(context, '/profile'),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Banner Promo
-            CarouselSlider(
-              options: CarouselOptions(
-                height: 160.0,
-                autoPlay: true,
-                enlargeCenterPage: true,
-                viewportFraction: 0.9,
-                autoPlayInterval: const Duration(seconds: 3),
-                autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                enableInfiniteScroll: true,
-              ),
-              items: promoBanners.map((bannerPath) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.asset(
-                        bannerPath,
-                        fit: BoxFit.cover,
-                        width: MediaQuery.of(context).size.width,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Promo Banner Carousel
+              ClipRRect(
+                borderRadius: BorderRadius.circular(22),
+                child: CarouselSlider.builder(
+                  itemCount: promoBanners.length,
+                  options: CarouselOptions(
+                    height: isWideScreen ? 280 : 190,
+                    autoPlay: true,
+                    enlargeCenterPage: true,
+                    viewportFraction: 0.88,
+                    autoPlayInterval: const Duration(seconds: 4),
+                    autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                    enableInfiniteScroll: true,
+                    scrollPhysics: const BouncingScrollPhysics(),
+                  ),
+                  itemBuilder: (context, index, realIdx) {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(22),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color.fromRGBO(0, 0, 0, 38).withAlpha((0.15 * 255).round()),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(22),
+                            child: Image.asset(
+                              promoBanners[index],
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            ),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(22),
+                              gradient: const LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [
+                                  Color.fromRGBO(0, 0, 0, 0.55),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                          ),
+                          const Positioned(
+                            bottom: 20,
+                            left: 20,
+                            right: 20,
+                            child: Text(
+                              'Promo Spesial Minggu Ini!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black54,
+                                    blurRadius: 6,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   },
-                );
-              }).toList(),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Search Field
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.blue.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2))
-                ],
-              ),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search games...',
-                  prefixIcon: const Icon(Icons.search, color: Colors.blue),
-                  border: InputBorder.none,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    searchQuery = value;
-                  });
-                },
               ),
-            ),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 22),
 
-            // Category Dropdown
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.blue.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2))
-                ],
-              ),
-              child: Column(
+              // Search & Filter Row
+              Row(
                 children: [
-                  InkWell(
-                    onTap: toggleCategoryDropdown,
-                    borderRadius: BorderRadius.circular(16),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Category: $selectedCategory',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.blue[900],
-                            ),
-                          ),
-                          Icon(
-                            isCategoryDropdownOpen
-                                ? Icons.keyboard_arrow_up
-                                : Icons.keyboard_arrow_down,
-                            size: 24,
-                            color: Colors.blue[900],
+                  // Search bar dengan background putih dan outline biru
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: Colors.indigo.shade700, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.indigo.shade700.withAlpha((0.15 * 255).round()),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
+                      child: TextField(
+                        style: const TextStyle(color: Colors.black87),
+                        decoration: InputDecoration(
+                          hintText: 'Cari game...',
+                          hintStyle: TextStyle(color: Colors.indigo.shade700.withAlpha((0.5 * 255).round())),
+                          prefixIcon: Icon(Icons.search, color: Colors.indigo.shade700),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        ),
+                        onChanged: (value) => setState(() {
+                          searchQuery = value;
+                        }),
+                        onSubmitted: (_) => FocusScope.of(context).unfocus(),
+                      ),
                     ),
                   ),
-                  if (isCategoryDropdownOpen)
-                    Divider(height: 1, color: Colors.blue[100]),
-                  if (isCategoryDropdownOpen)
-                    SizedBox(
-                      height: categories.length * 48.0,
-                      child: ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: categories.length,
-                        itemBuilder: (context, index) {
-                          final category = categories[index];
-                          final isSelected = selectedCategory == category;
-                          return InkWell(
-                            onTap: () {
-                              setState(() {
-                                selectedCategory = category;
-                                isCategoryDropdownOpen = false;
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                              color: isSelected
-                                  ? Colors.blue.withOpacity(0.15)
-                                  : null,
-                              child: Text(
-                                category,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: isSelected
-                                      ? Colors.blue[800]
-                                      : Colors.blueGrey[900],
-                                  fontWeight:
-                                      isSelected ? FontWeight.bold : null,
-                                ),
+
+                  const SizedBox(width: 14),
+
+                  // Sort button
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.all(12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      backgroundColor: products.isEmpty ? Colors.grey : Colors.indigo.shade700,
+                      elevation: 5,
+                      shadowColor: const Color.fromRGBO(72, 81, 231, 0.3),
+                    ),
+                    onPressed: products.isEmpty
+                        ? null
+                        : () {
+                            FocusScope.of(context).unfocus();
+                            showModalBottomSheet(
+                              context: context,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                              ),
+                              builder: (context) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(24),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Urutkan berdasarkan harga',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      _buildSortOption('None', 'Default'),
+                                      _buildSortOption('Highest', 'Harga Tertinggi'),
+                                      _buildSortOption('Lowest', 'Harga Terendah'),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                    child: Icon(Icons.sort, size: 28, color: products.isEmpty ? Colors.black26 : Colors.white),
+                  ),
+
+                  const SizedBox(width: 14),
+
+                  // Clear filter button
+                  OutlinedButton(
+                    onPressed: () {
+                      FocusScope.of(context).unfocus();
+                      setState(() {
+                        selectedCategory = 'All';
+                        searchQuery = '';
+                        selectedSort = 'None';
+                      });
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Colors.indigo.shade700),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'Reset Filter',
+                      style: TextStyle(
+                        color: Colors.indigo.shade700,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // Dropdown kategori satu warna dengan tombol filter (biru), teks putih, outline putih
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: dropdownBgColor,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.white, width: 1.8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: dropdownBgColor.withAlpha((0.1 * 255).round()),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: selectedCategory,
+                    isExpanded: true,
+                    icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white),
+                    dropdownColor: dropdownBgColor,
+                    style: TextStyle(
+                      color: dropdownTextColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    onChanged: (String? value) {
+                      FocusScope.of(context).unfocus();
+                      setState(() {
+                        selectedCategory = value!;
+                      });
+                    },
+                    items: categories
+                        .map(
+                          (category) => DropdownMenuItem<String>(
+                            value: category,
+                            child: Text(
+                              category,
+                              style: TextStyle(
+                                fontWeight: category == selectedCategory ? FontWeight.bold : FontWeight.normal,
+                                color: dropdownTextColor,
                               ),
                             ),
-                          );
-                        },
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Jumlah produk
+              Text(
+                '${products.length} item${products.length == 1 ? '' : 's'} ditemukan',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.indigo.shade900,
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              // Pesan kosong jika produk tidak ada
+              if (products.isEmpty)
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      searchQuery.trim().isNotEmpty ? 'Produk tidak ditemukan' : 'Tidak ada produk tersedia',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.indigo.shade400,
                       ),
                     ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Sort & Total Item
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${products.length} items',
-                  style: TextStyle(fontSize: 14, color: Colors.blueGrey[700]),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.blue.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2))
-                    ],
                   ),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+
+              // Grid produk
+              if (products.isNotEmpty)
+                Expanded(
+                  child: GridView.builder(
+                    padding: EdgeInsets.zero,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: isWideScreen ? 4 : 2,
+                      crossAxisSpacing: 14,
+                      mainAxisSpacing: 14,
+                      childAspectRatio: 0.7,
+                    ),
+                    itemCount: products.length,
+                    itemBuilder: (ctx, i) {
+                      final product = products[i];
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
                         ),
-                        builder: (context) {
-                          return Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Sort by Price',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                ListTile(
-                                  leading: Icon(
-                                    selectedSort == 'None'
-                                        ? Icons.check_circle
-                                        : Icons.circle_outlined,
-                                    color: Colors.blue,
-                                  ),
-                                  title: const Text('Default'),
-                                  onTap: () {
-                                    setState(() {
-                                      selectedSort = 'None';
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                ListTile(
-                                  leading: Icon(
-                                    selectedSort == 'Highest'
-                                        ? Icons.check_circle
-                                        : Icons.circle_outlined,
-                                    color: Colors.blue,
-                                  ),
-                                  title: const Text('Highest Price'),
-                                  onTap: () {
-                                    setState(() {
-                                      selectedSort = 'Highest';
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                ListTile(
-                                  leading: Icon(
-                                    selectedSort == 'Lowest'
-                                        ? Icons.check_circle
-                                        : Icons.circle_outlined,
-                                    color: Colors.blue,
-                                  ),
-                                  title: const Text('Lowest Price'),
-                                  onTap: () {
-                                    setState(() {
-                                      selectedSort = 'Lowest';
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                        elevation: 5,
+                        shadowColor: const Color.fromRGBO(0, 0, 0, 0.12),
+                        child: InkWell(
+                          onTap: () {
+                            // Navigasi ke detail produk jika perlu
+                          },
+                          borderRadius: BorderRadius.circular(18),
+                          child: ProductItem(product: product), // Hapus onAddToCart jika error
+                        ),
                       );
                     },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.sort, color: Colors.blue, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            selectedSort == 'None'
-                                ? 'Sort by'
-                                : (selectedSort == 'Highest'
-                                    ? 'Highest Price'
-                                    : 'Lowest Price'),
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.blue[800],
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Icon(Icons.keyboard_arrow_down,
-                              size: 20, color: Colors.blue[800]),
-                        ],
-                      ),
-                    ),
                   ),
                 ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            // Grid Produk
-            Expanded(
-              child: GridView.builder(
-                padding: EdgeInsets.zero,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 14,
-                  mainAxisSpacing: 14,
-                  childAspectRatio: 3 / 4,
-                ),
-                itemCount: products.length,
-                itemBuilder: (ctx, i) {
-                  final product = products[i];
-                  return Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 3,
-                    shadowColor: Colors.blue.withOpacity(0.15),
-                    child: InkWell(
-                      onTap: () {
-                        // Navigator.pushNamed(context, '/product-detail', arguments: product.id);
-                      },
-                      borderRadius: BorderRadius.circular(16),
-                      child: ProductItem(product: product),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSortOption(String value, String label) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(
+        selectedSort == value ? Icons.check_circle_rounded : Icons.circle_outlined,
+        color: Colors.indigo.shade700,
+      ),
+      title: Text(
+        label,
+        style: TextStyle(
+          fontWeight: selectedSort == value ? FontWeight.bold : FontWeight.normal,
+          fontSize: 16,
+        ),
+      ),
+      onTap: () {
+        FocusScope.of(context).unfocus();
+        setState(() {
+          selectedSort = value;
+        });
+        Navigator.pop(context);
+      },
     );
   }
 }

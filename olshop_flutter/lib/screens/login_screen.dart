@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
+
 import '../providers/auth_provider.dart';
 import 'home_screen.dart';
+import 'register_screen.dart';
+import '../utils/page_transitions.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,15 +15,14 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
-    with SingleTickerProviderStateMixin {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   String? _errorMessage;
 
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
+  late final AnimationController _animationController;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<Offset> _slideAnimation;
 
   bool _isPasswordVisible = false;
 
@@ -60,8 +63,12 @@ class _LoginScreenState extends State<LoginScreen>
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
 
-    if (authProvider.login(username, password)) {
-      Navigator.of(context).pushReplacement(_createRoute());
+    final success = authProvider.login(username, password);
+
+    if (success) {
+      Navigator.of(context).pushReplacement(
+        PageTransitions.fadeSlideFromRight(const HomeScreen()),
+      );
     } else {
       setState(() {
         _errorMessage = 'Username atau password salah!';
@@ -69,33 +76,17 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  Route _createRoute() {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) =>
-          const HomeScreen(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final fadeTween = Tween(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeInOut));
-
-        return FadeTransition(
-          opacity: animation.drive(fadeTween),
-          child: child,
-        );
-      },
-      transitionDuration: const Duration(milliseconds: 500),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final blue = Colors.blue.shade700;
+    final Color primaryColor = Colors.indigo.shade900;
+    final Color secondaryColor = Colors.indigo.shade700;
 
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              blue.withOpacity(0.15),
+              primaryColor.withAlpha((0.15 * 255).round()),
               Colors.white,
             ],
             begin: Alignment.topCenter,
@@ -114,10 +105,14 @@ class _LoginScreenState extends State<LoginScreen>
                   children: [
                     Hero(
                       tag: 'logo',
-                      child: Icon(
-                        Icons.shopping_cart_rounded,
-                        size: 85,
-                        color: blue,
+                      child: SizedBox(
+                        height: 130,
+                        width: 130,
+                        child: Lottie.asset(
+                          'assets/animation/Login.json',
+                          fit: BoxFit.contain,
+                          repeat: true,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 14),
@@ -126,19 +121,18 @@ class _LoginScreenState extends State<LoginScreen>
                       style: GoogleFonts.poppins(
                         fontSize: 28,
                         fontWeight: FontWeight.w600,
-                        color: blue.withOpacity(0.85),
+                        color: primaryColor.withAlpha((0.85 * 255).round()),
                       ),
                     ),
                     const SizedBox(height: 30),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 28),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: blue.withOpacity(0.12),
+                            color: primaryColor.withAlpha((0.12 * 255).round()),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
@@ -150,6 +144,7 @@ class _LoginScreenState extends State<LoginScreen>
                             controller: _usernameController,
                             label: 'Username',
                             icon: Icons.person_outline,
+                            primaryColor: primaryColor,
                           ),
                           const SizedBox(height: 18),
                           _buildTextField(
@@ -163,13 +158,17 @@ class _LoginScreenState extends State<LoginScreen>
                                 _isPasswordVisible = !_isPasswordVisible;
                               });
                             },
+                            primaryColor: primaryColor,
                           ),
                           if (_errorMessage != null) ...[
                             const SizedBox(height: 14),
                             Row(
                               children: [
-                                Icon(Icons.error_outline,
-                                    color: Colors.red.shade700, size: 20),
+                                Icon(
+                                  Icons.error_outline,
+                                  color: Colors.red.shade700,
+                                  size: 20,
+                                ),
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: Text(
@@ -189,14 +188,13 @@ class _LoginScreenState extends State<LoginScreen>
                             child: ElevatedButton(
                               onPressed: _login,
                               style: ElevatedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
-                                backgroundColor: blue,
+                                backgroundColor: primaryColor,
                                 elevation: 5,
-                                shadowColor: blue.withOpacity(0.4),
+                                shadowColor: primaryColor.withAlpha((0.4 * 255).round()),
                               ),
                               child: Text(
                                 'Login',
@@ -214,13 +212,15 @@ class _LoginScreenState extends State<LoginScreen>
                     const SizedBox(height: 20),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/register');
+                        Navigator.of(context).push(
+                          PageTransitions.fadeSlideFromRight(const RegisterScreen()),
+                        );
                       },
                       child: Text(
                         "Belum punya akun? Register",
                         style: GoogleFonts.poppins(
                           fontSize: 14,
-                          color: blue.withOpacity(0.85),
+                          color: secondaryColor.withAlpha((0.85 * 255).round()),
                         ),
                       ),
                     ),
@@ -241,43 +241,41 @@ class _LoginScreenState extends State<LoginScreen>
     bool obscure = false,
     VoidCallback? onToggleVisibility,
     bool isPasswordVisible = false,
+    required Color primaryColor,
   }) {
-    final blue = Colors.blue.shade700;
-
     return TextField(
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: blue.withOpacity(0.8)),
+        prefixIcon: Icon(icon, color: primaryColor.withAlpha((0.8 * 255).round())),
         suffixIcon: obscure
             ? IconButton(
                 icon: Icon(
                   isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                  color: blue.withOpacity(0.8),
+                  color: primaryColor.withAlpha((0.8 * 255).round()),
                 ),
                 onPressed: onToggleVisibility,
               )
             : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: blue.withOpacity(0.4), width: 1.3),
+          borderSide: BorderSide(color: primaryColor.withAlpha((0.4 * 255).round()), width: 1.3),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: blue.withOpacity(0.3)),
+          borderSide: BorderSide(color: primaryColor.withAlpha((0.3 * 255).round())),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: blue, width: 2),
+          borderSide: BorderSide(color: primaryColor, width: 2),
         ),
         filled: true,
         fillColor: Colors.white,
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
-        labelStyle: TextStyle(color: blue.withOpacity(0.8)),
+        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+        labelStyle: TextStyle(color: primaryColor.withAlpha((0.8 * 255).round())),
       ),
       obscureText: obscure ? !isPasswordVisible : false,
-      cursorColor: blue,
+      cursorColor: primaryColor,
     );
   }
 }

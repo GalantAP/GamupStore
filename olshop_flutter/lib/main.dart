@@ -28,26 +28,35 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) => AuthProvider(),
+        ),
         ChangeNotifierProxyProvider<AuthProvider, UserProvider>(
           create: (_) => UserProvider(),
           update: (_, authProvider, userProvider) {
             if (authProvider.isAuthenticated) {
-              userProvider!.login(
+              userProvider ??= UserProvider();
+              userProvider.login(
                 id: authProvider.userId ?? '',
                 username: authProvider.username ?? 'User',
                 email: authProvider.email ?? 'email@example.com',
-                imagePath: authProvider.imagePath,
+                imagePath: authProvider.imagePath ?? 'assets/images/default_user.png',
               );
             } else {
-              userProvider!.logout();
+              userProvider?.logout();
             }
-            return userProvider;
+            return userProvider!;
           },
         ),
-        ChangeNotifierProvider(create: (_) => ProductProvider()),
-        ChangeNotifierProvider(create: (_) => CartProvider()),
-        ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider<ProductProvider>(
+          create: (_) => ProductProvider(),
+        ),
+        ChangeNotifierProvider<CartProvider>(
+          create: (_) => CartProvider(),
+        ),
+        ChangeNotifierProvider<OrderProvider>(
+          create: (_) => OrderProvider(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -64,7 +73,9 @@ class MyApp extends StatelessWidget {
             primary: Colors.indigo,
             secondary: Colors.indigoAccent,
           ),
-          textTheme: GoogleFonts.poppinsTextTheme(ThemeData.light().textTheme),
+          textTheme: GoogleFonts.poppinsTextTheme(
+            ThemeData.light().textTheme,
+          ),
           useMaterial3: true,
         ),
         home: const AuthWrapper(),

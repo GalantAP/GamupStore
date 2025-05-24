@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:lottie/lottie.dart'; // Import Lottie
+
 import '../providers/user_provider.dart';
+import '../utils/page_transitions.dart'; // import helper animasi transisi
+import 'login_screen.dart'; // agar bisa navigasi balik login
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -68,7 +72,7 @@ class _RegisterScreenState extends State<RegisterScreen>
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: Colors.green.withOpacity(0.9),
+        backgroundColor: Colors.green.withAlpha((0.9 * 255).round()),
         content: Text(
           'Akun berhasil dibuat!',
           style: GoogleFonts.poppins(color: Colors.white),
@@ -77,19 +81,22 @@ class _RegisterScreenState extends State<RegisterScreen>
       ),
     );
 
-    Navigator.pushReplacementNamed(context, '/home');
+    Navigator.of(context).pushReplacement(
+      PageTransitions.fadeSlideFromRight(const LoginScreen()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final blue = Colors.blue.shade700;
+    final primaryColor = Colors.indigo.shade900;
+    final accentColor = Colors.indigo.shade700;
 
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              blue.withOpacity(0.15),
+              primaryColor.withAlpha((0.15 * 255).round()),
               Colors.white,
             ],
             begin: Alignment.topCenter,
@@ -110,10 +117,14 @@ class _RegisterScreenState extends State<RegisterScreen>
                     children: [
                       Hero(
                         tag: 'logo',
-                        child: Icon(
-                          Icons.person_add_alt_1_rounded,
-                          size: 85,
-                          color: blue,
+                        child: SizedBox(
+                          height: 130,
+                          width: 130,
+                          child: Lottie.asset(
+                            'assets/animation/Registrasi.json',
+                            fit: BoxFit.contain,
+                            repeat: true,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -122,19 +133,19 @@ class _RegisterScreenState extends State<RegisterScreen>
                         style: GoogleFonts.poppins(
                           fontSize: 28,
                           fontWeight: FontWeight.w600,
-                          color: blue.withOpacity(0.85),
+                          color: primaryColor.withAlpha((0.85 * 255).round()),
                         ),
                       ),
                       const SizedBox(height: 30),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 28),
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: blue.withOpacity(0.12),
+                              color: primaryColor.withAlpha((0.12 * 255).round()),
                               blurRadius: 16,
                               offset: const Offset(0, 6),
                             ),
@@ -146,7 +157,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                               controller: _usernameController,
                               label: 'Username',
                               icon: Icons.person_outline,
-                              blue: blue,
+                              primaryColor: primaryColor,
                             ),
                             const SizedBox(height: 18),
                             _buildTextField(
@@ -154,7 +165,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                               label: 'Email',
                               icon: Icons.email_outlined,
                               inputType: TextInputType.emailAddress,
-                              blue: blue,
+                              primaryColor: primaryColor,
                             ),
                             const SizedBox(height: 18),
                             _buildTextField(
@@ -162,7 +173,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                               label: 'Password',
                               icon: Icons.lock_outline,
                               obscure: true,
-                              blue: blue,
+                              primaryColor: primaryColor,
                             ),
                             if (_errorMessage != null) ...[
                               const SizedBox(height: 14),
@@ -189,14 +200,13 @@ class _RegisterScreenState extends State<RegisterScreen>
                               child: ElevatedButton(
                                 onPressed: _register,
                                 style: ElevatedButton.styleFrom(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 16),
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
-                                  backgroundColor: blue,
+                                  backgroundColor: primaryColor,
                                   elevation: 5,
-                                  shadowColor: blue.withOpacity(0.4),
+                                  shadowColor: primaryColor.withAlpha((0.4 * 255).round()),
                                 ),
                                 child: Text(
                                   'Daftar Sekarang',
@@ -214,13 +224,15 @@ class _RegisterScreenState extends State<RegisterScreen>
                       const SizedBox(height: 20),
                       TextButton(
                         onPressed: () {
-                          Navigator.pushReplacementNamed(context, '/login');
+                          Navigator.of(context).pushReplacement(
+                            PageTransitions.fadeSlideFromRight(const LoginScreen()),
+                          );
                         },
                         child: Text(
                           "Sudah punya akun? Login",
                           style: GoogleFonts.poppins(
                             fontSize: 14,
-                            color: blue.withOpacity(0.85),
+                            color: accentColor.withAlpha((0.85 * 255).round()),
                           ),
                         ),
                       ),
@@ -241,21 +253,19 @@ class _RegisterScreenState extends State<RegisterScreen>
     required IconData icon,
     TextInputType inputType = TextInputType.text,
     bool obscure = false,
-    required Color blue,
+    required Color primaryColor,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: inputType,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: blue.withOpacity(0.8)),
+        prefixIcon: Icon(icon, color: primaryColor.withAlpha((0.8 * 255).round())),
         suffixIcon: obscure
             ? IconButton(
                 icon: Icon(
-                  _isPasswordVisible
-                      ? Icons.visibility
-                      : Icons.visibility_off,
-                  color: blue.withOpacity(0.8),
+                  _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                  color: primaryColor.withAlpha((0.8 * 255).round()),
                 ),
                 onPressed: () {
                   setState(() {
@@ -266,24 +276,24 @@ class _RegisterScreenState extends State<RegisterScreen>
             : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: blue.withOpacity(0.4), width: 1.3),
+          borderSide: BorderSide(color: primaryColor.withAlpha((0.4 * 255).round()), width: 1.3),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: blue.withOpacity(0.3)),
+          borderSide: BorderSide(color: primaryColor.withAlpha((0.3 * 255).round())),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: blue, width: 2),
+          borderSide: BorderSide(color: primaryColor, width: 2),
         ),
         filled: true,
         fillColor: Colors.white,
         contentPadding:
             const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
-        labelStyle: TextStyle(color: blue.withOpacity(0.8)),
+        labelStyle: TextStyle(color: primaryColor.withAlpha((0.8 * 255).round())),
       ),
       obscureText: obscure ? !_isPasswordVisible : false,
-      cursorColor: blue,
+      cursorColor: primaryColor,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Masukkan $label';

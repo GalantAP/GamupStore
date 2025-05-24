@@ -25,7 +25,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     if (selectedItems.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select at least one item!')),
+        const SnackBar(
+          content: Text('Please select at least one item!'),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
       return;
     }
@@ -39,16 +42,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     cart.clear();
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Order placed successfully!')),
+      const SnackBar(
+        content: Text('Order placed successfully!'),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
 
-    Navigator.popUntil(context, ModalRoute.withName('/home'));
+    Navigator.pushNamedAndRemoveUntil(context, '/order-history', (route) => false);
   }
 
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
-    final blue = Colors.blue.shade700;
+    final primaryBlue = Colors.indigo.shade900;
+    final lighterBlue = Colors.indigo.shade700;
 
     if (_selectedItems.isEmpty) {
       for (var key in cart.items.keys) {
@@ -61,85 +68,105 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         .fold<double>(0, (sum, entry) => sum + entry.value.price);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F8),
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         title: const Text('Checkout'),
-        backgroundColor: blue,
+        backgroundColor: primaryBlue,
         elevation: 0,
+        centerTitle: true,
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
                 child: Card(
-                  elevation: 6,
+                  elevation: 8,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  shadowColor: blue.withOpacity(0.3),
+                  shadowColor: primaryBlue.withAlpha((0.3 * 255).round()),
                   child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Select items to checkout',
                           style: TextStyle(
-                            fontSize: 20,
-                            color: blue,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: primaryBlue,
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        ...cart.items.entries.map((entry) {
-                          final product = entry.value;
-                          final isSelected = _selectedItems[entry.key] ?? true;
+                        const SizedBox(height: 14),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: cart.items.length,
+                            itemBuilder: (ctx, index) {
+                              final entry = cart.items.entries.elementAt(index);
+                              final product = entry.value;
+                              final isSelected = _selectedItems[entry.key] ?? true;
 
-                          return CheckboxListTile(
-                            value: isSelected,
-                            onChanged: (val) {
-                              setState(() {
-                                _selectedItems[entry.key] = val ?? false;
-                              });
+                              return Container(
+                                margin: const EdgeInsets.symmetric(vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? lighterBlue.withAlpha((0.1 * 255).round()) : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: CheckboxListTile(
+                                  value: isSelected,
+                                  onChanged: (val) {
+                                    setState(() {
+                                      _selectedItems[entry.key] = val ?? false;
+                                    });
+                                  },
+                                  title: Text(
+                                    product.name,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: isSelected ? primaryBlue : Colors.grey.shade700,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    'Price: Rp ${product.price.toStringAsFixed(2)}\nQuantity: 1',
+                                    style: TextStyle(
+                                      color: isSelected ? lighterBlue : Colors.grey.shade500,
+                                    ),
+                                  ),
+                                  controlAffinity: ListTileControlAffinity.leading,
+                                  activeColor: primaryBlue,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                ),
+                              );
                             },
-                            title: Text(
-                              product.name,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            subtitle: Text(
-                                'Price: Rp ${product.price.toStringAsFixed(2)}\nQuantity: 1'),
-                            controlAffinity: ListTileControlAffinity.leading,
-                          );
-                        }).toList(),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               Card(
-                elevation: 6,
+                elevation: 8,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                shadowColor: blue.withOpacity(0.3),
+                shadowColor: primaryBlue.withAlpha((0.3 * 255).round()),
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
                   child: Column(
                     children: [
                       Text(
                         'Total Amount',
                         style: TextStyle(
-                          fontSize: 20,
-                          color: blue,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: primaryBlue,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -148,35 +175,37 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade900,
+                          color: primaryBlue,
+                          letterSpacing: 1.2,
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: () => _placeOrder(context),
                 icon: const Icon(Icons.check_circle_outline, size: 28),
                 label: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 14),
+                  padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
                     'Place Order',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
                     ),
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: blue,
-                  foregroundColor: Colors.white, // teks & icon jadi putih
+                  backgroundColor: primaryBlue,
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(24),
                   ),
-                  elevation: 6,
-                  shadowColor: blue.withOpacity(0.7),
+                  elevation: 10,
+                  shadowColor: primaryBlue.withAlpha((0.7 * 255).round()),
                 ),
               ),
             ],
