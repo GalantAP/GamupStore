@@ -3,16 +3,15 @@ import 'package:provider/provider.dart';
 
 import '../providers/user_provider.dart';
 import 'login_screen.dart';
-import 'EditProfilescreen.dart';
-import 'WishlistScreen.dart';
-import 'ChangePasswordScreen.dart';
-import 'SettingsScreen.dart';
-import 'order_history_screen.dart'; // Import halaman Order History
+import 'edit_profile_screen.dart';
+import 'wishlist_screen.dart';
+import 'change_password_screen.dart';
+import 'settings_screen.dart';
+import 'order_history_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  // Animasi transisi halaman dari kanan ke kiri
   Route _createRoute(Widget page) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,
@@ -29,7 +28,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Konfirmasi logout dengan dialog
   void _confirmLogout(BuildContext context, UserProvider userProvider) {
     final primaryColor = Colors.indigo.shade700;
     showDialog(
@@ -65,7 +63,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Widget menu item dengan icon, judul, dan warna khusus (warna ikon disamakan dengan tema biru)
   Widget _buildModernMenuItem({
     required IconData icon,
     required String title,
@@ -90,14 +87,14 @@ class ProfileScreen extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
-          splashColor: iconColor.withAlpha(60),
-          highlightColor: iconColor.withAlpha(30),
+          splashColor: iconColor.withAlpha((255 * 0.24).round()),
+          highlightColor: iconColor.withAlpha((255 * 0.12).round()),
           onTap: onTap,
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             leading: CircleAvatar(
               radius: 28,
-              backgroundColor: iconColor.withAlpha(40),
+              backgroundColor: iconColor.withAlpha((255 * 0.16).round()),
               child: Icon(icon, color: iconColor, size: 28),
             ),
             title: Text(
@@ -151,7 +148,7 @@ class ProfileScreen extends StatelessWidget {
                   'No user logged in',
                   style: TextStyle(
                     fontSize: 18,
-                    color: primaryColor.withAlpha(153),
+                    color: primaryColor.withAlpha((255 * 0.6).round()),
                   ),
                 ),
               );
@@ -168,7 +165,7 @@ class ProfileScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: primaryColor.withAlpha(64),
+                          color: primaryColor.withAlpha((255 * 0.25).round()),
                           blurRadius: 24,
                           offset: const Offset(0, 10),
                         ),
@@ -176,8 +173,13 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     child: CircleAvatar(
                       radius: 75,
-                      backgroundColor: primaryColor.withAlpha(30),
-                      backgroundImage: AssetImage(user.imagePath),
+                      backgroundColor: primaryColor.withAlpha((255 * 0.12).round()),
+                      backgroundImage: (user.imagePath.isNotEmpty)
+                          ? AssetImage(user.imagePath)
+                          : null,
+                      child: (user.imagePath.isEmpty)
+                          ? Icon(Icons.person, size: 70, color: primaryColor)
+                          : null,
                     ),
                   ),
 
@@ -201,14 +203,13 @@ class ProfileScreen extends StatelessWidget {
                     user.email,
                     style: TextStyle(
                       fontSize: 17,
-                      color: primaryColor.withAlpha(178),
+                      color: primaryColor.withAlpha((255 * 0.7).round()),
                       letterSpacing: 0.5,
                     ),
                   ),
 
                   const SizedBox(height: 42),
 
-                  // Menu items dengan animasi custom transisi
                   _buildModernMenuItem(
                     icon: Icons.edit,
                     title: 'Edit Profile',
@@ -272,7 +273,6 @@ class ProfileScreen extends StatelessWidget {
 
                   const SizedBox(height: 50),
 
-                  // Tombol logout dengan ikon putih dan warna biru tema
                   SizedBox(
                     width: double.infinity,
                     height: 55,
@@ -290,7 +290,7 @@ class ProfileScreen extends StatelessWidget {
                         backgroundColor: primaryColor,
                         foregroundColor: Colors.white,
                         elevation: 8,
-                        shadowColor: primaryColor.withAlpha(150),
+                        shadowColor: primaryColor.withAlpha((255 * 0.6).round()),
                       ),
                       onPressed: () => _confirmLogout(context, userProvider),
                     ),

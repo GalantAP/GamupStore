@@ -1,0 +1,40 @@
+{
+  "Jawa Barat": {
+    "Bandung": ["Coblong", "Sukajadi", "Cicendo", "Cidadap"],
+    "Bekasi": ["Bekasi Barat", "Bekasi Timur", "Bekasi Utara", "Pondok Gede"],
+    "Bogor": ["Bogor Utara", "Bogor Selatan", "Cibinong"]
+  },
+  "DKI Jakarta": {
+    "Jakarta Barat": ["Cengkareng", "Grogol", "Palmerah", "Kalideres"],
+    "Jakarta Selatan": ["Kebayoran Baru", "Pasar Minggu", "Setiabudi"],
+    "Jakarta Timur": ["Cakung", "Duren Sawit", "Matraman", "Jatinegara"]
+  },
+  "Jawa Tengah": {
+    "Semarang": ["Candisari", "Tembalang", "Banyumanik", "Pedurungan"],
+    "Solo": ["Laweyan", "Jebres", "Serengan", "Banjarsari"],
+    "Magelang": ["Magelang Tengah", "Magelang Selatan", "Magelang Utara"]
+  },
+  "Jawa Timur": {
+    "Surabaya": ["Sukolilo", "Wonokromo", "Gubeng", "Sambikerep"],
+    "Malang": ["Klojen", "Lowokwaru", "Blimbing"],
+    "Sidoarjo": ["Sidoarjo Kota", "Waru", "Taman"]
+  },
+  "Bali": {
+    "Denpasar": ["Denpasar Barat", "Denpasar Selatan", "Denpasar Timur", "Denpasar Utara"],
+    "Badung": ["Kuta", "Mengwi", "Abiansemal"]
+  },
+  "Sumatera Utara": {
+    "Medan": ["Medan Baru", "Medan Timur", "Medan Perjuangan"],
+    "Binjai": ["Binjai Barat", "Binjai Timur"]
+  },
+  "Sumatera Barat": {
+    "Padang": ["Padang Barat", "Padang Timur", "Kuranji", "Lubuk Begalung", "Pauh"],
+    "Bukittinggi": ["Mandiangin Koto Selayan", "Aur Birugo Tigo Baleh", "Guguk Panjang"],
+    "Padang Panjang": ["Padang Panjang Barat", "Padang Panjang Timur"],
+    "Payakumbuh": ["Payakumbuh Barat", "Payakumbuh Utara", "Payakumbuh Timur"],
+    "Solok": ["Tanjung Harapan", "Lubuk Sikarah"],
+    "Kabupaten Agam": ["Lubuk Basung", "Tanjung Mutiara", "Ampek Nagari"],
+    "Kabupaten Limapuluh Kota": ["Suliki", "Harau", "Guguak"],
+    "Kabupaten Tanah Datar": ["Batusangkar", "Lima Kaum", "Sungai Tarab"]
+  }
+}

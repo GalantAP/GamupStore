@@ -20,7 +20,11 @@ class WishlistScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.favorite_border, size: 100, color: primaryColor.withOpacity(0.7)),
+              Icon(
+                Icons.favorite_border, 
+                size: 100, 
+                color: primaryColor.withAlpha((0.7 * 255).round()), // was withOpacity(0.7)
+              ),
               const SizedBox(height: 20),
               Text(
                 'Your Wishlist is Empty',
@@ -36,7 +40,7 @@ class WishlistScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
-                  color: primaryColor.withOpacity(0.6),
+                  color: primaryColor.withAlpha((0.6 * 255).round()), // was withOpacity(0.6)
                 ),
               ),
             ],
